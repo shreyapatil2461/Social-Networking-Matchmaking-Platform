@@ -1,0 +1,882 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define MAX_USERS 1000
+#define MAX_INTEREST_LEN 50
+#define MAX_PASSWORD_LEN 20
+#define MAX_NAME_LEN 50
+#define MAX_CAFE_NAME 100
+#define MAX_LOCATION 100
+#define MAX_TIMINGS 50
+
+typedef struct {
+    char name[MAX_NAME_LEN];
+    char password[MAX_PASSWORD_LEN];
+    char music[MAX_INTEREST_LEN];
+    char occupation[MAX_INTEREST_LEN];
+    char fitness[MAX_INTEREST_LEN];
+    char language[MAX_INTEREST_LEN];
+    char communicationStyle[MAX_INTEREST_LEN];
+    char sleepingHabits[MAX_INTEREST_LEN];
+    char lookingFor[MAX_INTEREST_LEN];
+    char gender;
+    int age;
+    bool isRegistered;
+} UserProfile;
+
+UserProfile users[MAX_USERS];
+int userCount = 0;
+
+int calculateHash(const char* str, int len, int prime) {
+    int hash = 0;
+    for (int i = 0; i < len; i++) {
+        hash = (hash * 256 + str[i]) % prime;
+    }
+    return hash;
+}
+
+int isUsernameExistsRabinKarp(const char* pattern, int count) {
+    int prime = 101;
+    int patternLen = strlen(pattern);
+
+    if (patternLen < 1)
+        return -1;
+
+    int patternHash = calculateHash(pattern, patternLen, prime);
+
+    for (int i = 0; i < count; i++) {
+        const char* registeredUsername = users[i].name;
+        int registeredUsernameLen = strlen(registeredUsername);
+
+        if (registeredUsernameLen != patternLen)
+            continue;
+
+        int textHash = calculateHash(registeredUsername, patternLen, prime);
+
+        if (patternHash == textHash && strncmp(pattern, registeredUsername, patternLen) == 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+ void check_whether_user_present()
+ {
+    char searchname[MAX_NAME_LEN];
+    printf("Enter the name to be searched: ");
+    scanf("%s", searchname);
+
+    int result = isUsernameExistsRabinKarp(searchname, userCount);
+
+    if (result == 1)
+        {
+        printf("User found.\n");
+        }
+    else
+        {
+        printf("User not found.\n");
+        }
+}
+bool isUsernameExistsBoyerMoore(const char* text, int count) {
+    int n = strlen(text);
+
+    for (int i = 0; i < count; i++) {
+        const char* pattern = users[i].name;
+        int m = strlen(pattern);
+
+        if (n != m)
+            continue;
+
+        int badChar[256];
+
+        for (int i = 0; i < 256; i++) {
+            badChar[i] = -1;
+        }
+
+        for (int i = 0; i < m; i++) {
+            badChar[(unsigned char)pattern[i]] = i;
+        }
+
+        int s = 0;
+        while (s <= (n - m)) {
+            int j = m - 1;
+
+            while (j >= 0 && pattern[j] == text[s + j]) {
+                j--;
+            }
+
+            if (j < 0) {
+                return true;
+            } else {
+                s += (j - badChar[(unsigned char)text[s + j]] + 1);
+            }
+        }
+    }
+
+    return false;
+}
+
+void registerUser() {
+    // Implementation of registerUser from the first code
+
+    if (userCount >= MAX_USERS) {
+        printf("User limit reached.\n");
+        return;
+    }
+
+    // Prompt user for information and register
+    UserProfile newUser;
+
+    // Ask for a unique username using Boyer-Moore
+    do {
+        printf("Enter name: ");
+        scanf("%s", newUser.name);
+
+        if (isUsernameExistsBoyerMoore(newUser.name, userCount)) {
+            printf("Username already exists. Please choose a different one.\n");
+        }
+
+    } while (isUsernameExistsBoyerMoore(newUser.name, userCount));
+
+
+    printf("Enter password:");
+    scanf("%s", newUser.password);
+
+
+    // Provide a list of predefined music genres for the user to choose
+    printf("Choose music genre:\n");
+    printf("1. 90s Kid\n");
+    printf("2. Jazz\n");
+    printf("3. Pop\n");
+    printf("4. Indie Rock\n");
+    printf("5. Bollywood\n");
+    printf("6. Electronic\n");
+    printf("7. Indian Classical\n");
+
+    int musicChoice;
+    printf("Enter the number corresponding to your music choice: ");
+    scanf("%d", &musicChoice);
+
+    // Set music preference based on the user's choice
+    switch (musicChoice) {
+        case 1:
+            strcpy(newUser.music, "1");
+            break;
+        case 2:
+            strcpy(newUser.music, "2");
+            break;
+        case 3:
+            strcpy(newUser.music, "3");
+            break;
+        case 4:
+            strcpy(newUser.music, "4");
+            break;
+        case 5:
+            strcpy(newUser.music, "5");
+            break;
+        case 6:
+            strcpy(newUser.music, "6");
+            break;
+        case 7:
+            strcpy(newUser.music, "7");
+            break;
+        default:
+            printf("Invalid choice. Setting music genre to 'Unknown'.\n");
+            strcpy(newUser.music, "8");
+            break;
+    }
+
+    // Prompt for other user details
+    printf("Choose occupation:\n");
+    printf("1. Engineering\n");
+    printf("2. Doctor\n");
+    printf("3. Student\n");
+    printf("4. Business\n");
+    printf("5. Government Employee\n");
+    printf("6. Private Employee\n");
+
+    int occupationChoice;
+    printf("Enter the number corresponding to your occupation choice: ");
+    scanf("%d", &occupationChoice);
+
+    // Set occupation based on the user's choice
+    switch (occupationChoice) {
+        case 1:
+            strcpy(newUser.occupation, "1");
+            break;
+        case 2:
+            strcpy(newUser.occupation, "2");
+            break;
+        case 3:
+            strcpy(newUser.occupation, "3");
+            break;
+        case 4:
+            strcpy(newUser.occupation, "4");
+            break;
+        case 5:
+            strcpy(newUser.occupation, "5");
+            break;
+        case 6:
+            strcpy(newUser.occupation, "6");
+            break;
+        default:
+            printf("Invalid choice. Setting occupation to 'Unknown'.\n");
+            strcpy(newUser.occupation, "7");
+            break;
+    }
+
+    printf("Choose fitness interest:\n");
+    printf("1. Strength\n");
+    printf("2. Zumba\n");
+    printf("3. Dance\n");
+    printf("4. Athletics\n");
+    printf("5. Calisthenics\n");
+
+    int fitnessChoice;
+    printf("Enter the number corresponding to your fitness choice: ");
+    scanf("%d", &fitnessChoice);
+
+    // Set fitness interest based on the user's choice
+    switch (fitnessChoice) {
+        case 1:
+            strcpy(newUser.fitness, "1");
+            break;
+        case 2:
+            strcpy(newUser.fitness, "2");
+            break;
+        case 3:
+            strcpy(newUser.fitness, "3");
+            break;
+        case 4:
+            strcpy(newUser.fitness, "4");
+            break;
+        case 5:
+            strcpy(newUser.fitness, "5");
+            break;
+        default:
+            printf("Invalid choice. Setting fitness interest to 'Unknown'.\n");
+            strcpy(newUser.fitness, "6");
+            break;
+    }
+
+    printf("Choose language preference:\n");
+    printf("1. Kannada\n");
+    printf("2. English\n");
+    printf("3. Hindi\n");
+    printf("4. Tamil\n");
+    printf("5. Telugu\n");
+    printf("6. Marathi\n");
+    printf("7. Malayalam\n");
+
+    int languageChoice;
+    printf("Enter the number corresponding to your language choice: ");
+    scanf("%d", &languageChoice);
+
+    // Set language preference based on the user's choice
+    switch (languageChoice) {
+        case 1:
+            strcpy(newUser.language, "1");
+            break;
+        case 2:
+            strcpy(newUser.language, "2");
+            break;
+        case 3:
+            strcpy(newUser.language, "3");
+            break;
+        case 4:
+            strcpy(newUser.language, "4");
+            break;
+        case 5:
+            strcpy(newUser.language, "5");
+            break;
+        case 6:
+            strcpy(newUser.language, "6");
+            break;
+        case 7:
+            strcpy(newUser.language, "7");
+            break;
+        default:
+            printf("Invalid choice. Setting language preference to 'Unknown'.\n");
+            strcpy(newUser.language, "8");
+            break;
+    }
+
+    printf("Choose communication style:\n");
+    printf("1. I stay on WhatsApp all day\n");
+    printf("2. Big time texter\n");
+    printf("3. Phone caller\n");
+    printf("4. Video chatter\n");
+    printf("5. I'm slow to answer on WhatsApp\n");
+    printf("6. Bad texter\n");
+    printf("7. Better in person\n");
+
+    int communicationStyleChoice;
+    printf("Enter the number corresponding to your communication style choice: ");
+    scanf("%d", &communicationStyleChoice);
+
+    // Set communication style based on the user's choice
+    switch (communicationStyleChoice) {
+        case 1:
+            strcpy(newUser.communicationStyle, "1");
+            break;
+        case 2:
+            strcpy(newUser.communicationStyle, "2");
+            break;
+        case 3:
+            strcpy(newUser.communicationStyle, "3");
+            break;
+        case 4:
+            strcpy(newUser.communicationStyle, "4");
+            break;
+        case 5:
+            strcpy(newUser.communicationStyle, "5");
+            break;
+        case 6:
+            strcpy(newUser.communicationStyle, "6");
+            break;
+        case 7:
+            strcpy(newUser.communicationStyle, "7");
+            break;
+        default:
+            printf("Invalid choice. Setting communication style to 'Unknown'.\n");
+            strcpy(newUser.communicationStyle, "8");
+            break;
+    }
+
+    // Prompt for sleeping habits
+    printf("Choose sleeping habits:\n");
+    printf("1. Early bird\n");
+    printf("2. Night owl\n");
+    printf("3. In a spectrum\n");
+
+    int sleepingHabitsChoice;
+    printf("Enter the number corresponding to your choice: ");
+    scanf("%d", &sleepingHabitsChoice);
+
+    // Set sleeping habits based on the user's choice
+    switch (sleepingHabitsChoice) {
+        case 1:
+            strcpy(newUser.sleepingHabits, "1");
+            break;
+        case 2:
+            strcpy(newUser.sleepingHabits, "2");
+            break;
+        case 3:
+            strcpy(newUser.sleepingHabits, "3");
+            break;
+        default:
+            printf("Invalid choice. Setting sleeping habits to 'Unknown'.\n");
+            strcpy(newUser.sleepingHabits, "4");
+            break;
+    }
+
+    // Prompt for what the user is looking for
+    printf("Looking for:\n");
+    printf("1. Long-term partner\n");
+    printf("2. Long-term, open to short\n");
+    printf("3. Short-term, open to long\n");
+    printf("4. New friends\n");
+    printf("5. Still figuring it out\n");
+    printf("6. Short-term fun\n");
+
+    int lookingForChoice;
+    printf("Enter the number corresponding to your choice: ");
+    scanf("%d", &lookingForChoice);
+
+    // Set what the user is looking for based on the choice
+    switch (lookingForChoice) {
+        case 1:
+            strcpy(newUser.lookingFor, "1");
+            break;
+        case 2:
+            strcpy(newUser.lookingFor, "2");
+            break;
+        case 3:
+            strcpy(newUser.lookingFor, "3");
+            break;
+        case 4:
+            strcpy(newUser.lookingFor, "4");
+            break;
+        case 5:
+            strcpy(newUser.lookingFor, "5");
+            break;
+        case 6:
+            strcpy(newUser.lookingFor, "6");
+            break;
+        default:
+            printf("Invalid choice. Setting looking for to 'Still figuring it out'.\n");
+            strcpy(newUser.lookingFor, "7");
+            break;
+    }
+
+    printf("Enter gender (M/F): ");
+    scanf(" %c", &newUser.gender);
+        if (toupper(newUser.gender) != 'M' && toupper(newUser.gender) != 'F') {
+        printf("Invalid gender. Please enter 'M' or 'F'.\n");
+        return;
+        }
+    printf("Enter age: ");
+    scanf("%d", &newUser.age);
+       if (newUser.age <18) {
+        printf("Invalid age. Age must be greater than 18.\n");
+        return;
+    }
+
+    // Set registration status and add the user to the array
+    newUser.isRegistered = true;
+      users[userCount++] = newUser;
+
+    // Set registration status and add the user to the array
+
+
+    printf("User registered successfully!\n");
+
+}
+
+int loginUser() {
+    // Implementation of loginUser from the first code
+
+    char name[MAX_NAME_LEN], password[MAX_PASSWORD_LEN];
+    printf("Enter name: ");
+    scanf("%s", name);
+    printf("Enter password: ");
+    scanf("%s", password);
+
+    // Check if the entered credentials match any registered user
+    for (int i = 0; i < userCount; i++) {
+        if (strcmp(users[i].name, name) == 0 && strcmp(users[i].password, password) == 0) {
+            return i; // User index
+        }
+    }
+    return -1; // Login failed
+}
+
+int calculateCompatibility(UserProfile user1, UserProfile user2) {
+    // Implementation of calculateCompatibility from the first code
+    int score = 0;
+
+    // Check if the genders are different
+    if (user1.gender != user2.gender) {
+        score += 10; // Assign a base score for gender compatibility
+
+        // Check interests for compatibility and assign scores
+        if (strcmp(user1.music, user2.music) == 0) score += 15;
+        if (strcmp(user1.occupation, user2.occupation) == 0) score += 15;
+        if (strcmp(user1.fitness, user2.fitness) == 0) score += 15;
+        if (strcmp(user1.language, user2.language) == 0) score += 15;
+        if (strcmp(user1.communicationStyle, user2.communicationStyle) == 0) score += 15;
+        if (strcmp(user1.sleepingHabits, user2.sleepingHabits) == 0) score += 15;
+        if (strcmp(user1.lookingFor, user2.lookingFor) == 0) score += 10; // Adjusted score for looking for
+    }
+
+    return score;
+}
+
+void swap(int* a, int* b) {
+    // Implementation of swap from the first code
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+int partition(int indices[], int distances[], int low, int high) {
+    // Implementation of partition from the first code
+    // ...
+     int pivot = distances[indices[high]];
+    int i = (low - 1);
+
+    for (int j = low; j <= high - 1; j++) {
+        if (distances[indices[j]] > pivot) { // Sorting in descending order
+            i++;
+            swap(&indices[i], &indices[j]);
+        }
+    }
+    swap(&indices[i + 1], &indices[high]);
+    return (i + 1);
+}
+
+void quickSort(int indices[], int distances[], int low, int high) {
+    // Implementation of quickSort from the first code
+    // ...
+     if (low < high) {
+        int pi = partition(indices, distances, low, high);
+        quickSort(indices, distances, low, pi - 1);
+        quickSort(indices, distances, pi + 1, high);
+    }
+}
+
+int findMostCompatible(int userIndex) {
+    // Implementation of findMostCompatible from the first code
+    // ...
+     int distances[MAX_USERS];
+    bool visited[MAX_USERS];
+
+    // Initialize arrays for Dijkstra's algorithm
+    for (int i = 0; i < userCount; i++) {
+        distances[i] = INT_MAX;
+        visited[i] = false;
+    }
+
+    distances[userIndex] = 0;
+
+    // Dijkstra's algorithm to find the most compatible match
+    for (int count = 0; count < userCount - 1; count++) {
+        int u = -1;
+        for (int i = 0; i < userCount; i++) {
+            if (!visited[i] && (u == -1 || distances[i] < distances[u])) {
+                u = i;
+            }
+        }
+
+        visited[u] = true;
+
+        for (int v = 0; v < userCount; v++) {
+            if (!visited[v]) {
+                int compatibility = calculateCompatibility(users[u], users[v]);
+                if (compatibility > 0 && distances[u] != INT_MAX &&
+                    distances[u] + compatibility < distances[v] && users[u].gender != users[v].gender) {
+                    distances[v] = distances[u] + compatibility;
+                }
+            }
+        }
+    }
+
+    int bestMatchIndex = -1;
+    int highestCompatibility = 0;
+
+    for (int i = 0; i < userCount; i++) {
+        if (i != userIndex && distances[i] < INT_MAX && users[i].gender != users[userIndex].gender) {
+            int compatibilityScore = distances[i];
+            if (compatibilityScore > highestCompatibility) {
+                highestCompatibility = compatibilityScore;
+                bestMatchIndex = i;
+            }
+        }
+    }
+
+    return bestMatchIndex;
+}
+
+void findTopThreeMatches(int userIndex) {
+    // Implementation of findTopThreeMatches from the first code
+    // ...
+    int distances[MAX_USERS];
+    bool visited[MAX_USERS];
+
+    // Initialize arrays for Dijkstra's algorithm
+    for (int i = 0; i < userCount; i++) {
+        distances[i] = INT_MAX;
+        visited[i] = false;
+    }
+
+    distances[userIndex] = 0;
+
+    // Dijkstra's algorithm to find the compatibility scores
+    for (int count = 0; count < userCount - 1; count++) {
+        int u = -1;
+        for (int i = 0; i < userCount; i++) {
+            if (!visited[i] && (u == -1 || distances[i] < distances[u])) {
+                u = i;
+            }
+        }
+
+        visited[u] = true;
+
+        for (int v = 0; v < userCount; v++) {
+            if (!visited[v] && u != v) {
+                int compatibility = calculateCompatibility(users[u], users[v]);
+                if (compatibility > 0 && distances[u] != INT_MAX && distances[u] + compatibility < distances[v]) {
+                    distances[v] = distances[u] + compatibility;
+                }
+            }
+        }
+    }
+
+    // Create an array of indices for sorting
+    int indices[MAX_USERS];
+    for (int i = 0; i < userCount; i++) {
+        indices[i] = i;
+    }
+
+    // Quick Sort to sort the indices based on compatibility scores in descending order
+    quickSort(indices, distances, 0, userCount - 1);
+
+    printf("Your next three matches in descending order of compatibility score are:\n");
+
+    // Display the next three matches (excluding the logged-in user and previous top matches)
+    for (int i = 0, count = 0; count < 3 && i < userCount; ++i) {
+        if (indices[i] != userIndex && distances[indices[i]] != INT_MAX &&
+            indices[i] != findMostCompatible(userIndex) &&
+            users[indices[i]].gender != users[userIndex].gender) {
+            printf("%d. %s \n", count + 1, users[indices[i]].name);
+            ++count;
+        }
+    }
+}
+
+void deleteUserAccount() {
+    // Implementation of deleteUserAccount from the second code
+    // ...
+     if (userCount == 0) {
+        printf("No user accounts to delete.\n");
+        return;
+    }
+
+    char usernameToDelete[MAX_NAME_LEN];
+    printf("Enter the username to delete: ");
+    scanf("%s", usernameToDelete);
+
+    int userIndexToDelete = -1;
+
+    // Brute-force algorithm to find the user with the specified username
+    for (int i = 0; i < userCount; i++) {
+        if (strcmp(users[i].name, usernameToDelete) == 0) {
+            userIndexToDelete = i;
+            break;
+        }
+    }
+
+    if (userIndexToDelete == -1) {
+        printf("User with the specified username not found.\n");
+        return;
+    }
+
+    // Shift the array to remove the user at the specified index
+    for (int i = userIndexToDelete; i < userCount - 1; i++) {
+        users[i] = users[i + 1];
+    }
+
+    // Decrement the user count
+    userCount--;
+
+    printf("User account deleted successfully!\n");
+}
+
+
+void saveUserProfilesToFile(const char* userss) {
+    // Implementation of saveUserProfilesToFile from the first code
+    FILE* file = fopen(userss, "w");
+    if (file == NULL) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    // Write user profiles to the file
+    for (int i = 0; i < userCount; i++)
+   //int i = userCount-1;
+    {
+        fprintf(file, "%s %s %s %s %s %s %s %s %s %c %d %d\n",
+                users[i].name, users[i].password, users[i].music, users[i].occupation,
+                users[i].fitness, users[i].language, users[i].communicationStyle,
+                users[i].sleepingHabits, users[i].lookingFor, users[i].gender, users[i].age,
+                users[i].isRegistered);
+
+
+    }
+
+    fclose(file);
+}
+
+void loadUserProfilesFromFile(const char* userss) {
+    // Implementation of loadUserProfilesFromFile from the first code
+     FILE* file = fopen(userss, "r");
+    if (file == NULL) {
+        printf("Error opening file for reading.\n");
+        return;
+    }
+
+    char line[256]; // Adjust the size as needed
+
+    // Read user profiles from the file
+    while (fgets(line, sizeof(line), file) != NULL) {
+        sscanf(line, "%s %s %s %s %s %s %s %s %s %c %d %d",
+               users[userCount].name, users[userCount].password, users[userCount].music,
+               users[userCount].occupation, users[userCount].fitness, users[userCount].language,
+               users[userCount].communicationStyle, users[userCount].sleepingHabits,
+               users[userCount].lookingFor, &users[userCount].gender, &users[userCount].age,
+               &users[userCount].isRegistered);
+
+        userCount++;
+    }
+
+    fclose(file);
+}
+
+// Struct and functions for the cafe information
+typedef struct CafeNode {
+    char name[MAX_NAME_LEN];
+    char location[MAX_LOCATION];
+    char timings[MAX_TIMINGS];
+    float rating;
+    struct CafeNode *left, *right;
+} CafeNode;
+
+CafeNode* newCafeNode(const char* name, const char* location, const char* timings, float rating) {
+    // Implementation of newCafeNode from the second code
+    // ...
+     CafeNode* newNode = (CafeNode*)malloc(sizeof(CafeNode));
+    if (newNode) {
+        strcpy(newNode->name, name);
+        strcpy(newNode->location, location);
+        strcpy(newNode->timings, timings);
+        newNode->rating = rating;
+        newNode->left = newNode->right = NULL;
+    }
+    return newNode;
+}
+
+void removeNewline(char* str) {
+
+    // Implementation of removeNewline from the second code
+    // ...
+      str[strcspn(str, "\n")] = 0; // Remove newline character
+}
+
+CafeNode* insertCafe(CafeNode* root, const char* name, const char* location, const char* timings, float rating) {
+    // Implementation of insertCafe from the second code
+    // ...
+    if (root == NULL) {
+        return newCafeNode(name, location, timings, rating);
+    }
+    if (strcmp(name, root->name) < 0) {
+        root->left = insertCafe(root->left, name, location, timings, rating);
+    } else if (strcmp(name, root->name) > 0) {
+        root->right = insertCafe(root->right, name, location, timings, rating);
+    }
+    return root;
+}
+
+CafeNode* searchCafe(CafeNode* root, const char* name) {
+    // Implementation of searchCafe from the second code
+
+        if (root == NULL || strcmp(root->name, name) == 0) {
+        return root;
+    }
+    if (strcmp(name, root->name) < 0) {
+        return searchCafe(root->left, name);
+    } else {
+        return searchCafe(root->right, name);
+    }
+}
+
+
+void freeTree(CafeNode* root) {
+    // Implementation of freeTree from the second code
+        if (root) {
+        freeTree(root->left);
+        freeTree(root->right);
+        free(root);
+    }
+
+}
+
+int main()
+{
+printf("\033[1;36mAlgorithmic Love: Because Compatibility Is More Than Skin Deep.\033[0m\n");
+
+    int choice, loggedInUser = -1, matchIndex;
+    CafeNode* foundCafe;
+    CafeNode* root = NULL;
+        char cafeName[MAX_CAFE_NAME], location[MAX_LOCATION], timings[MAX_TIMINGS];
+         float rating;
+    // Load user profiles from file at the start of the program
+    loadUserProfilesFromFile("userss.txt");
+
+    // Menu-driven user interface
+//
+
+    while (1) {
+        printf("\n1. Register\n2. Login\n3.  Find best Compatible Match\n4. Find next three compatible matches\n5. Check whether user is registered\n6. Delete the user\n7. Search cafe\n8. exit\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                registerUser();
+                  saveUserProfilesToFile("userss.txt");
+                break;
+            case 2:
+                loggedInUser = loginUser();
+                if (loggedInUser != -1) {
+                    printf("Login successful!\n");
+                } else {
+                    printf("Login failed!\n");
+                }
+                break;
+            case 3:
+                  if (loggedInUser != -1) {
+                    matchIndex = findMostCompatible(loggedInUser);
+                    if (matchIndex != -1) {
+                            printf("\033[1;31mIt's a match made in algorithmic heaven!<3\033[0m\n");
+                        printf("\nYour most compatible match is: %s\n", users[matchIndex].name);
+                    } else {
+                        printf("No compatible match found.\n");
+                    }
+                } else {
+                    printf("You need to log in first.\n");
+                }
+                break;
+                case 4:
+            if (loggedInUser != -1) {
+                    findTopThreeMatches(loggedInUser);
+                } else {
+                    printf("You need to log in first.\n");
+                }
+                break;
+
+            case 5:
+                          check_whether_user_present(userCount);
+           break;
+            case 6:
+                   deleteUserAccount();
+                     saveUserProfilesToFile("userss.txt");
+                break;
+            case 7:
+                 foundCafe = searchCafe(root, cafeName);
+                     FILE* file = fopen("cafes.txt", "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    // Load cafe information into the BST
+    while (fscanf(file, "%99s %99s %49s %f", cafeName, location, timings, &rating) == 4) {
+        root = insertCafe(root, cafeName, location, timings, rating);
+    }
+
+    fclose(file);
+
+    // Take user input for cafe search
+    printf("Enter cafe name to search: ");
+    fflush(stdin);
+    fgets(cafeName, sizeof(cafeName), stdin);
+    removeNewline(cafeName);
+
+    // Search for the cafe in the BST
+     CafeNode* foundCafe = searchCafe(root, cafeName);
+                if (foundCafe) {
+        printf("Cafe: %s\nLocation: %s\nTimings: %s\nRating: %.2f\n", foundCafe->name, foundCafe->location, foundCafe->timings, foundCafe->rating);
+    } else {
+        printf("Cafe '%s' not found.\n", cafeName);
+    }
+
+    // Free allocated memory
+    freeTree(root);
+
+    break;
+
+            case 8:
+                printf("Exiting...\n");
+                // Save user profiles to file or perform cleanup before exiting
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+
+    }
+
+    return 0;
+}
+
